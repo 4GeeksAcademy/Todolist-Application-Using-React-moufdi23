@@ -3,6 +3,8 @@ import React, { useState } from "react";
 const Home = () => {
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState("");
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [editingText, setEditingText] = useState("");
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && newTask.trim() !== "") {
@@ -13,6 +15,19 @@ const Home = () => {
 
   const deleteTask = (indexToDelete) => {
     setTasks(tasks.filter((_, index) => index !== indexToDelete));
+  };
+
+  const startEditing = (index) => {
+    setEditingIndex(index);
+    setEditingText(tasks[index]);
+  };
+
+  const saveEdit = (index) => {
+    const updatedTasks = [...tasks];
+    updatedTasks[index] = editingText.trim();
+    setTasks(updatedTasks);
+    setEditingIndex(null);
+    setEditingText("");
   };
 
   return (
@@ -47,7 +62,26 @@ const Home = () => {
                 x.style.display = "none";
               }}
             >
-              {task}
+              {editingIndex === index ? (
+                <input
+                  type="text"
+                  className="form-control"
+                  value={editingText}
+                  onChange={(e) => setEditingText(e.target.value)}
+                  onBlur={() => saveEdit(index)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") saveEdit(index);
+                  }}
+                />
+              ) : (
+                <span
+                  onClick={() => startEditing(index)}
+                  style={{ cursor: "pointer" }}
+                >
+                  {task}
+                </span>
+              )}
+
               <span
                 className="delete-x text-danger"
                 style={{ cursor: "pointer", display: "none" }}
